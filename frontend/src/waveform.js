@@ -46,8 +46,18 @@ const Waveform = ({ audio }) => {
       }
     });
 
+    const handleKeyDown = (event) => {
+      if (event.code === 'Space') {
+        event.preventDefault(); // Prevent default spacebar action (like scrolling)
+        setAnnotationMode((prev) => !prev);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
     return () => {
       waveSurfer.destroy();
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [audio, isAnnotationMode]);
 
@@ -65,12 +75,9 @@ const Waveform = ({ audio }) => {
       </button>
       <div ref={containerRef} />
     </WaveSurferWrap>
-    <button
-      onClick={() => setAnnotationMode((prev) => !prev)}
-      type="button"
-    >
-      {isAnnotationMode ? 'Switch to Seek Mode' : 'Switch to Annotation Mode'}
-    </button>
+    <ModeIndicator>
+      {isAnnotationMode ? 'Annotation Mode' : 'Seek Mode'}
+    </ModeIndicator>
     <AnnotationList>
       {annotations.map((annotation, index) => (
         <li key={index}>
@@ -107,6 +114,12 @@ const AnnotationList = styled.ul`
   li {
     margin-bottom: 5px;
   }
+`;
+
+const ModeIndicator = styled.div`
+  margin-top: 10px;
+  font-size: 1.2em;
+  font-weight: bold;
 `;
 
 export default Waveform;
