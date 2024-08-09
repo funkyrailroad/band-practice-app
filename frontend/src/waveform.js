@@ -48,6 +48,9 @@ const Waveform = ({ audio }) => {
 
     const handleKeyDown = (event) => {
       const activeElement = document.activeElement;
+      if (event.code === 'Escape') {
+        setCurrentAnnotationTime(null);
+      }
 
       // Check if the active element is an input or textarea to avoid triggering the event
       if (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA') {
