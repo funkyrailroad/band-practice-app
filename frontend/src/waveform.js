@@ -11,7 +11,7 @@ const Waveform = ({ audio }) => {
     getCurrentTime: () => 0,
     seekTo: (percent) => {}
   });
-  const [isPlaying, toggleIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [annotations, setAnnotations] = useState([]);
   const [isAnnotationMode, setAnnotationMode] = useState(false);
   const [currentPosition, setCurrentPosition] = useState(0); // Track the current position
@@ -60,7 +60,7 @@ const Waveform = ({ audio }) => {
       if (event.code === 'Space') {
         // TODO: group these two lines into a function
         waveSurferRef.current.playPause();
-        toggleIsPlaying(waveSurferRef.current.isPlaying());
+        setIsPlaying(waveSurferRef.current.isPlaying());
       }
     };
 
@@ -79,7 +79,7 @@ const Waveform = ({ audio }) => {
         onClick={() => {
           // TODO: group these two lines into a function
           waveSurferRef.current.playPause();
-          toggleIsPlaying(waveSurferRef.current.isPlaying());
+          setIsPlaying(waveSurferRef.current.isPlaying());
         }}
         type="button"
       >
