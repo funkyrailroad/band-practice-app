@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import WaveSurfer from 'wavesurfer.js';
 import styled from 'styled-components';
 import { FaPlayCircle, FaPauseCircle } from 'react-icons/fa';
+import AnnotationForm from './AnnotationForm';
 
 const Waveform = ({ audio }) => {
   const containerRef = useRef();
@@ -14,7 +15,8 @@ const Waveform = ({ audio }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [annotations, setAnnotations] = useState([]);
   const [isAnnotationMode, setAnnotationMode] = useState(false);
-  const [currentPosition, setCurrentPosition] = useState(0); // Track the current position
+  const [currentPosition, setCurrentPosition] = useState(0);
+  const [currentAnnotationTime, setCurrentAnnotationTime] = useState(null);
 
   useEffect(() => {
     const waveSurfer = WaveSurfer.create({
@@ -29,36 +31,34 @@ const Waveform = ({ audio }) => {
 
     waveSurfer.on('ready', () => {
       waveSurferRef.current = waveSurfer;
-      waveSurfer.seekTo(currentPosition); // Restore position
+      waveSurfer.seekTo(currentPosition);
     });
 
     waveSurfer.on('click', (relativeX) => {
       const duration = waveSurfer.getDuration();
-      const clickedTime = relativeX * duration;
+      const clickedTime = (relativeX * duration).toFixed(2);
 
       if (isAnnotationMode) {
-        const comment = prompt('Enter your annotation:');
-        if (comment) {
-          setAnnotations((prev) => [
-            ...prev,
-            { time: clickedTime.toFixed(2), text: comment },
-          ]);
-        }
+        setCurrentAnnotationTime(clickedTime);
       } else {
-        console.log(`Clicked time: ${clickedTime.toFixed(2)} seconds`);
         waveSurfer.seekTo(relativeX);
       }
-      setCurrentPosition(relativeX); // Update current position
+      setCurrentPosition(relativeX);
     });
 
     const handleKeyDown = (event) => {
+      const activeElement = document.activeElement;
+
+      // Check if the active element is an input or textarea to avoid triggering the event
+      if (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA') {
+        return;
+      }
       if (event.code === 'KeyT') {
-        event.preventDefault(); // Prevent default spacebar action (like scrolling)
+        event.preventDefault();
         setAnnotationMode((prev) => !prev);
-        setCurrentPosition(waveSurfer.getCurrentTime() / waveSurfer.getDuration()); // Save current position
+        setCurrentPosition(waveSurfer.getCurrentTime() / waveSurfer.getDuration());
       }
       if (event.code === 'Space') {
-        // TODO: group these two lines into a function
         waveSurferRef.current.playPause();
         setIsPlaying(waveSurferRef.current.isPlaying());
       }
@@ -72,12 +72,16 @@ const Waveform = ({ audio }) => {
     };
   }, [audio, isAnnotationMode, currentPosition]);
 
+  const handleSaveAnnotation = (annotation) => {
+    setAnnotations((prev) => [...prev, annotation]);
+    setCurrentAnnotationTime(null); // Close the form
+  };
+
   return (
     <>
     <WaveSurferWrap>
       <button
         onClick={() => {
-          // TODO: group these two lines into a function
           waveSurferRef.current.playPause();
           setIsPlaying(waveSurferRef.current.isPlaying());
         }}
@@ -93,10 +97,16 @@ const Waveform = ({ audio }) => {
     <AnnotationList>
       {annotations.map((annotation, index) => (
         <li key={index}>
-          <strong>{annotation.time}s:</strong> {annotation.text}
+          <strong>{annotation.time}s:</strong> {annotation.text} by {annotation.userName}
         </li>
       ))}
     </AnnotationList>
+    {currentAnnotationTime && (
+      <AnnotationForm
+        time={currentAnnotationTime}
+        onSave={handleSaveAnnotation}
+      />
+    )}
     </>
   );
 };
