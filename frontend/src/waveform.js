@@ -10,6 +10,8 @@ const Waveform = ({ audio }) => {
     isPlaying: () => false,
   });
   const [isPlaying, toggleIsPlaying] = useState(false);
+  const [annotations, setAnnotations] = useState([]);
+  const [isAnnotationMode, setAnnotationMode] = useState(false);
 
   useEffect(() => {
     const waveSurfer = WaveSurfer.create({
@@ -19,24 +21,38 @@ const Waveform = ({ audio }) => {
       barHeight: 10,
       cursorWidth: 0,
     });
+
     waveSurfer.load(audio);
+
     waveSurfer.on('ready', () => {
       waveSurferRef.current = waveSurfer;
     });
 
-    // Listen for click events
     waveSurfer.on('click', (relativeX) => {
-      const duration = waveSurfer.getDuration(); // Get the total duration of the audio
-      const clickedTime = (relativeX) * duration; // Calculate the clicked time
-      console.log(`Clicked time: ${clickedTime.toFixed(2)} seconds`);
+      const duration = waveSurfer.getDuration();
+      const clickedTime = relativeX * duration;
+
+      if (isAnnotationMode) {
+        const comment = prompt('Enter your annotation:');
+        if (comment) {
+          setAnnotations((prev) => [
+            ...prev,
+            { time: clickedTime.toFixed(2), text: comment },
+          ]);
+        }
+      } else {
+        console.log(`Clicked time: ${clickedTime.toFixed(2)} seconds`);
+        waveSurfer.seekTo(relativeX);
+      }
     });
 
     return () => {
       waveSurfer.destroy();
     };
-  }, [audio]);
+  }, [audio, isAnnotationMode]);
 
   return (
+    <>
     <WaveSurferWrap>
       <button
         onClick={() => {
@@ -48,7 +64,21 @@ const Waveform = ({ audio }) => {
         {isPlaying ? <FaPauseCircle size="3em" /> : <FaPlayCircle size="3em" />}
       </button>
       <div ref={containerRef} />
+      <button
+        onClick={() => setAnnotationMode((prev) => !prev)}
+        type="button"
+      >
+        {isAnnotationMode ? 'Switch to Seek Mode' : 'Switch to Annotation Mode'}
+      </button>
     </WaveSurferWrap>
+    <AnnotationList>
+      {annotations.map((annotation, index) => (
+        <li key={index}>
+          <strong>{annotation.time}s:</strong> {annotation.text}
+        </li>
+      ))}
+    </AnnotationList>
+    </>
   );
 };
 
@@ -70,5 +100,13 @@ const WaveSurferWrap = styled.div`
   }
 `;
 
+const AnnotationList = styled.ul`
+  margin-top: 10px;
+  list-style: none;
+  padding: 0;
+  li {
+    margin-bottom: 5px;
+  }
+`;
 
 export default Waveform;
