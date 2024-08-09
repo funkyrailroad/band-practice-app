@@ -8,10 +8,13 @@ const Waveform = ({ audio }) => {
   const containerRef = useRef();
   const waveSurferRef = useRef({
     isPlaying: () => false,
+    getCurrentTime: () => 0,
+    seekTo: (percent) => {}
   });
   const [isPlaying, toggleIsPlaying] = useState(false);
   const [annotations, setAnnotations] = useState([]);
   const [isAnnotationMode, setAnnotationMode] = useState(false);
+  const [currentPosition, setCurrentPosition] = useState(0); // Track the current position
 
   useEffect(() => {
     const waveSurfer = WaveSurfer.create({
@@ -26,6 +29,7 @@ const Waveform = ({ audio }) => {
 
     waveSurfer.on('ready', () => {
       waveSurferRef.current = waveSurfer;
+      waveSurfer.seekTo(currentPosition); // Restore position
     });
 
     waveSurfer.on('click', (relativeX) => {
@@ -44,12 +48,14 @@ const Waveform = ({ audio }) => {
         console.log(`Clicked time: ${clickedTime.toFixed(2)} seconds`);
         waveSurfer.seekTo(relativeX);
       }
+      setCurrentPosition(relativeX); // Update current position
     });
 
     const handleKeyDown = (event) => {
       if (event.code === 'Space') {
         event.preventDefault(); // Prevent default spacebar action (like scrolling)
         setAnnotationMode((prev) => !prev);
+        setCurrentPosition(waveSurfer.getCurrentTime() / waveSurfer.getDuration()); // Save current position
       }
     };
 
@@ -59,7 +65,7 @@ const Waveform = ({ audio }) => {
       waveSurfer.destroy();
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [audio, isAnnotationMode]);
+  }, [audio, isAnnotationMode, currentPosition]);
 
   return (
     <>
