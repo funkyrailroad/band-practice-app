@@ -24,6 +24,13 @@ const Waveform = ({ audio }) => {
       waveSurferRef.current = waveSurfer;
     });
 
+    // Listen for click events
+    waveSurfer.on('click', (relativeX) => {
+      const duration = waveSurfer.getDuration(); // Get the total duration of the audio
+      const clickedTime = (relativeX) * duration; // Calculate the clicked time
+      console.log(`Clicked time: ${clickedTime.toFixed(2)} seconds`);
+    });
+
     return () => {
       waveSurfer.destroy();
     };
