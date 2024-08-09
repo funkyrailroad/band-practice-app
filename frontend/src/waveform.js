@@ -64,13 +64,13 @@ const Waveform = ({ audio }) => {
         {isPlaying ? <FaPauseCircle size="3em" /> : <FaPlayCircle size="3em" />}
       </button>
       <div ref={containerRef} />
-      <button
-        onClick={() => setAnnotationMode((prev) => !prev)}
-        type="button"
-      >
-        {isAnnotationMode ? 'Switch to Seek Mode' : 'Switch to Annotation Mode'}
-      </button>
     </WaveSurferWrap>
+    <button
+      onClick={() => setAnnotationMode((prev) => !prev)}
+      type="button"
+    >
+      {isAnnotationMode ? 'Switch to Seek Mode' : 'Switch to Annotation Mode'}
+    </button>
     <AnnotationList>
       {annotations.map((annotation, index) => (
         <li key={index}>
