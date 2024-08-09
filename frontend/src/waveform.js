@@ -52,10 +52,15 @@ const Waveform = ({ audio }) => {
     });
 
     const handleKeyDown = (event) => {
-      if (event.code === 'Space') {
+      if (event.code === 'KeyT') {
         event.preventDefault(); // Prevent default spacebar action (like scrolling)
         setAnnotationMode((prev) => !prev);
         setCurrentPosition(waveSurfer.getCurrentTime() / waveSurfer.getDuration()); // Save current position
+      }
+      if (event.code === 'Space') {
+        // TODO: group these two lines into a function
+        waveSurferRef.current.playPause();
+        toggleIsPlaying(waveSurferRef.current.isPlaying());
       }
     };
 
@@ -72,6 +77,7 @@ const Waveform = ({ audio }) => {
     <WaveSurferWrap>
       <button
         onClick={() => {
+          // TODO: group these two lines into a function
           waveSurferRef.current.playPause();
           toggleIsPlaying(waveSurferRef.current.isPlaying());
         }}
