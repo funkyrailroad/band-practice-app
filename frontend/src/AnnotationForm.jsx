@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const AnnotationForm = ({ time, onSave }) => {
-  const [text, setText] = useState('');
-  const [userName, setUserName] = useState(''); // Later, this can be prepopulated via authentication
+  const [annotation, setAnnotation] = useState('');
+  const [createdBy, setCreatedBy] = useState(''); // Later, this can be prepopulated via authentication
 
   const handleSave = () => {
-    if (text.trim() && userName.trim()) {
-      onSave({ time, text, userName });
+    if (annotation.trim() && createdBy.trim()) {
+      onSave({ time, annotation, createdBy });
     } else {
       alert("Please fill out all fields");
     }
@@ -24,15 +24,15 @@ const AnnotationForm = ({ time, onSave }) => {
         User Name:
         <input
           type="text"
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
+          value={createdBy}
+          onChange={(e) => setCreatedBy(e.target.value)}
         />
       </label>
       <label>
         Annotation:
         <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
+          value={annotation}
+          onChange={(e) => setAnnotation(e.target.value)}
           rows="4"
         />
       </label>

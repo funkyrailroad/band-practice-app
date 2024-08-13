@@ -25,8 +25,13 @@ const Waveform = ({ audio }) => {
       try {
         const response = await fetch('http://localhost:8000/api/annotations/'); // Replace with your API endpoint
         const data = await response.json();
-        console.log('Annotations:', data);
-        setAnnotations(data);
+        // Transform the keys to camelCase
+        const camelCasedData = data.map(item => ({
+          annotation: item.annotation,
+          createdAt: item.created_at,
+          createdBy: item.created_by
+        }));
+        setAnnotations(camelCasedData);
       } catch (error) {
         console.error('Error fetching annotations:', error);
       }
@@ -117,7 +122,7 @@ const Waveform = ({ audio }) => {
     <AnnotationList>
       {annotations.map((annotation, index) => (
         <li key={index}>
-          <strong>{annotation.time}s:</strong> {annotation.annotation} by {annotation.created_by}
+          <strong>{annotation.time}s:</strong> {annotation.annotation} by {annotation.createdBy}
         </li>
       ))}
     </AnnotationList>
