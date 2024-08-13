@@ -18,6 +18,23 @@ const Waveform = ({ audio }) => {
   const [currentPosition, setCurrentPosition] = useState(0);
   const [currentAnnotationTime, setCurrentAnnotationTime] = useState(null);
 
+
+  // Fetch annotations from backend API when the component mounts
+  useEffect(() => {
+    const fetchAnnotations = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/api/annotations/'); // Replace with your API endpoint
+        const data = await response.json();
+        console.log('Annotations:', data);
+        setAnnotations(data);
+      } catch (error) {
+        console.error('Error fetching annotations:', error);
+      }
+    };
+
+    fetchAnnotations();
+  }, []);
+
   useEffect(() => {
     const waveSurfer = WaveSurfer.create({
       container: containerRef.current,
@@ -100,7 +117,7 @@ const Waveform = ({ audio }) => {
     <AnnotationList>
       {annotations.map((annotation, index) => (
         <li key={index}>
-          <strong>{annotation.time}s:</strong> {annotation.text} by {annotation.userName}
+          <strong>{annotation.time}s:</strong> {annotation.annotation} by {annotation.created_by}
         </li>
       ))}
     </AnnotationList>
