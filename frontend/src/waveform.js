@@ -18,6 +18,20 @@ const Waveform = ({ audio }) => {
   const [currentPosition, setCurrentPosition] = useState(0);
   const [currentAnnotationTime, setCurrentAnnotationTime] = useState(null);
 
+  const createAnnotation = async (annotation) => {
+    const response = await fetch('http://localhost:8000/api/annotations/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        'annotation': annotation.annotation,
+        'created_by': annotation.createdBy,
+      })
+    });
+    const data = await response.json();
+    return data;
+  }
 
   // Fetch annotations from backend API when the component mounts
   useEffect(() => {
@@ -99,6 +113,7 @@ const Waveform = ({ audio }) => {
 
   const handleSaveAnnotation = (annotation) => {
     setAnnotations((prev) => [...prev, annotation]);
+    createAnnotation(annotation);
     setCurrentAnnotationTime(null); // Close the form
   };
 
